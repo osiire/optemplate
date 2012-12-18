@@ -1,0 +1,10 @@
+
+NATIVE_ENABLED = false
+OCAMLFLAGS = -I +camlp4
+OCAMLPPFLAGS = -pp camlp4orf
+OCAMLDEPFLAGS = $(OCAMLPPFLAGS)
+
+.DEFAULT: pa_monad.cmo
+
+clean:
+	rm -f $(filter-proper-targets $(ls R, .))

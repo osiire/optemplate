@@ -1,0 +1,94 @@
+
+#
+# OCaml連携用Cコードをコンパイルする時に必要. -Iオプションに追加する.
+#
+OCAML_STDLIB = $(shell ocamlc -where)
+
+#
+# Cコードと一緒に実行ファイルを作るときに使う関数.
+#
+public.OCamlProgramWithC(name, files, cfiles) =
+   # XXX: JYH: these variables should be marked private in 0.9.9
+   protected.CMOFILES  = $(addsuffix .cmo, $(files))
+   protected.CMXFILES  = $(addsuffix .cmx, $(files))
+   protected.OFILES    = $(addsuffix $(EXT_OBJ), $(files))
+   protected.COFILES    = $(addsuffix $(EXT_OBJ), $(cfiles))
+
+   protected.CMAFILES  = $(addsuffix .cma,  $(OCAML_LIBS))
+   protected.CMXAFILES = $(addsuffix .cmxa, $(OCAML_LIBS))
+   protected.ARFILES   = $(addsuffix $(EXT_LIB), $(OCAML_LIBS))
+   protected.CMA_OTHER_FILES = $(addsuffix .cma, $(OCAML_OTHER_LIBS))
+   protected.CMXA_OTHER_FILES = $(addsuffix .cmxa, $(OCAML_OTHER_LIBS))
+
+   protected.CLIBS = $(addsuffix $(EXT_LIB), $(OCAML_CLIBS))
+
+   protected.name = $(file $(name))
+
+   protected.PROG     = $(file $(name)$(EXE))
+   protected.BYTEPROG = $(file $(name).run)
+   protected.OPTPROG  = $(file $(name).opt)
+
+   #
+   # Rules to build byte-code and native targets
+   #
+   $(BYTEPROG): $(CMAFILES) $(CMOFILES) $(CLIBS)
+        $(OCAMLFIND) $(OCAMLLINK) $(LAZY_OCAMLFINDFLAGS) $(PREFIXED_OCAMLPACKS) $(OCAMLFLAGS) $(OCAMLCFLAGS)\
+                $(PREFIXED_OCAMLINCLUDES) $(OCAML_BYTE_LINK_FLAGS)\
+                -o $@ $(CMA_OTHER_FILES) $(CMAFILES) $(OCamlLinkSort $(CMOFILES))\
+                $(CLIBS) $(OCAML_LINK_FLAGS)
+
+   $(OPTPROG): $(CMXAFILES) $(ARFILES) $(CMXFILES) $(OFILES) $(CLIBS) $(COFILES)
+        $(OCAMLFIND) $(OCAMLOPTLINK) $(LAZY_OCAMLFINDFLAGS) $(PREFIXED_OCAMLPACKS) $(OCAMLFLAGS) $(OCAMLOPTFLAGS)\
+                $(PREFIXED_OCAMLINCLUDES) $(OCAML_NATIVE_LINK_FLAGS)\
+                -o $@ $(CMXA_OTHER_FILES) $(CMXAFILES) $(OCamlLinkSort $(CMXFILES))\
+                $(COFILES) $(CLIBS) $(OCAML_LINK_FLAGS)
+
+   #
+   # Link the actual executables.
+   # Always prefer native executables.
+   #
+   if $(NATIVE_ENABLED)
+        $(PROG): $(OPTPROG)
+            ln-or-cp $< $@
+   else
+        $(PROG): $(BYTEPROG)
+            ln-or-cp $< $@
+
+   return $(array $(PROG), $(if $(NATIVE_ENABLED), $(OPTPROG)), $(if $(BYTE_ENABLED), $(BYTEPROG)))
+
+
+# OCamlPackedLibrary用のサブ関数
+OCamlPacklessPack(package_name, files) =
+   OCAMLFLAGS = $(filter -for-pack\ %, $(OCAMLFLAGS))
+   return $(OCamlPackage $(package_name), $(files))
+
+# OCamlPackedLibrary用のサブ関数
+OCamlLinklessLibrary(name, files) =
+   protected.name = $(file $(name))
+
+   protected.OFILES   = $(addsuffix $(EXT_OBJ), $(files))
+   protected.CMOFILES = $(addsuffix .cmo, $(files))
+   protected.CMXFILES = $(addsuffix .cmx, $(files))
+
+   protected.CLIB      = $(file $(name)$(EXT_LIB))
+   protected.BYTELIB   = $(file $(name).cma)
+   protected.NATIVELIB = $(file $(name).cmxa)
+
+   #
+   # Link commands
+   #
+   $(BYTELIB): $(CMOFILES) $(OFILES)
+        $(OCAMLFIND) $(OCAMLLINK) $(LAZY_OCAMLFINDFLAGS) $(PREFIXED_OCAMLPACKS) $(OCAMLFLAGS) $(OCAMLCFLAGS) \
+                $(OCAML_LIB_FLAGS) $(OCAML_LINK_FLAGS) -a -o $@ $(OCamlLinkSort $(CMOFILES)) 
+
+   $(NATIVELIB) $(CLIB): $(CMXFILES) $(OFILES)
+        $(OCAMLFIND) $(OCAMLOPTLINK) $(LAZY_OCAMLFINDFLAGS) $(PREFIXED_OCAMLPACKS) $(OCAMLFLAGS) $(OCAMLOPTFLAGS) \
+                $(OCAML_LIB_FLAGS) $(OCAML_NATIVE_LINK_FLAGS) -a -o $(NATIVELIB) $(OCamlLinkSort $(CMXFILES))
+
+   return $(array $(if $(NATIVE_ENABLED), $(NATIVELIB)), $(if $(NATIVE_ENABLED), $(CLIB)), $(if $(BYTE_ENABLED), $(BYTELIB)))
+
+#
+# 単一モジュール名でパックしたライブラリを作るとき用のビルドルール
+#
+public.OCamlPackedLibrary(package_name, files) =
+  return $(array $(OCamlPacklessPack $(package_name), $(files)), $(OCamlLinklessLibrary $(package_name), $(package_name)))

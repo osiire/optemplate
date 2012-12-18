@@ -1,0 +1,21 @@
+########################################################################
+# Phony targets are scoped, so you probably want to declare them first.
+#
+
+.PHONY: all install clean
+
+########################################################################
+# Subdirectories.
+# You may want to include some subdirectories in this project.
+# If so, define the subdirectory targets and uncomment this section.
+#
+
+include OUtil.om
+
+# 
+BYTE_ENABLED = true
+NATIVE_ENABLED = true
+USE_OCAMLFIND = true
+
+.SUBDIRS: src tests
+

@@ -1,0 +1,29 @@
+################################################
+# Build OCaml programs
+#
+
+#
+# general options
+#
+OCAMLPACKS[] = unix threads
+OCAMLFLAGS += -thread -g -annot -bin-annot
+
+.PHONY: share
+
+#
+# settings for building 'share' library
+# 
+section
+  OCAMLINCLUDES[] =
+    ../p4
+
+  FILES[] =
+    common
+
+  share : $(OCamlLibrary share, $(FILES))
+
+.DEFAULT: share
+
+clean:
+	rm -f *.annot *.cmt
+	rm -f $(filter-proper-targets $(ls R, .))

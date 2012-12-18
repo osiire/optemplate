@@ -1,0 +1,60 @@
+################################################
+# Build OCaml programs
+#
+
+#
+# general options
+#
+OCAMLPACKS[] = unix threads
+OCAMLFLAGS += -thread -g -annot -bin-annot
+CFLAGS += -I $(OCAML_STDLIB)
+
+.PHONY: sample1
+
+#
+# settings for building 'sample1'
+# 
+section
+ # depends p4 and share.
+  OCAMLINCLUDES[] =
+    ../p4
+    ../share
+
+  OCAML_LIBS[] =
+    ../share/share
+
+  OCAMLFLAGS += -pp "camlp4o ../p4/pa_monad.cmo"
+
+  PROGRAM = sample1
+
+  FILES[] =
+    main 
+
+  sample1 : $(OCamlProgram $(PROGRAM), $(FILES))
+
+##
+## if you want to build another program, add a section to make local scope.
+##
+#section
+#  PROGRAM = sample2
+#
+#  CFILES[] =
+#    c_stub
+#
+#  FILES[] =
+#     sample2
+#
+#  OCAMLPACKS[] += str
+#  sample2 : $(OCamlProgramWithC $(PROGRAM), $(FILES), $(CFILES))
+
+.DEFAULT: sample1
+
+.BUILD_SUCCESS:
+    echo The build was successful
+
+.BUILD_FAILURE:
+    echo The build failed
+
+clean:
+	rm -f *.annot *.cmt
+	rm -f $(filter-proper-targets $(ls R, .))
