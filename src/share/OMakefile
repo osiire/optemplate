@@ -13,14 +13,13 @@ OCAMLFLAGS += -thread -g -annot -bin-annot
 #
 # settings for building 'share' library
 # 
-section
-  OCAMLINCLUDES[] =
-    ../p4
+OCamlRequire(../p4/pa_monad.cmo)
+OCAMLINCLUDES[] += ../p4
 
-  FILES[] =
-    common
+FILES[] =
+  common
 
-  share : $(OCamlLibrary share, $(FILES))
+share : $(OCamlLibrary share, $(FILES))
 
 .DEFAULT: share
 

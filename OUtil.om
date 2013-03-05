@@ -5,6 +5,13 @@
 OCAML_STDLIB = $(shell ocamlc -where)
 
 #
+# OCaml用依存関係. (by camlspotter)
+#
+public.OCamlRequire(files) =
+    %.cmx %.cmo %.cmi %.cma %.cmxa %.annot %.spot %.spit %.cmt %.cmti: $(files)
+    export
+
+#
 # Cコードと一緒に実行ファイルを作るときに使う関数.
 #
 public.OCamlProgramWithC(name, files, cfiles) =
