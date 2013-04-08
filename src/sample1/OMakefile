@@ -26,7 +26,9 @@ OCAMLINCLUDES[] +=
 OCAML_LIBS[] =
   ../share/share
 
-OCAMLFLAGS += -pp "camlp4o ../p4/pa_monad.cmo"
+PP = -pp "camlp4o ../p4/pa_monad.cmo"
+OCAMLDEPFLAGS += $(PP)
+OCAMLFLAGS += $(PP)
 
 PROGRAM = sample1
 

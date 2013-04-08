@@ -15,6 +15,9 @@ OCAMLFLAGS += -thread -g -annot -bin-annot
 # 
 .SCANNER: scan-ocaml-%: ../p4/pa_monad.cmo
 OCAMLINCLUDES[] += ../p4
+PP = -pp "camlp4o ../p4/pa_monad.cmo"
+OCAMLDEPFLAGS += $(PP)
+OCAMLFLAGS += $(PP)
 
 FILES[] =
   common
