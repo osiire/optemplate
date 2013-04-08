@@ -16,7 +16,9 @@ CFLAGS += -I $(OCAML_STDLIB)
 # 
 
 # depends p4 and share.
-OCamlRequire(../p4/pa_monad.cmo ../share/share.cmxa)
+OCamlRequire(../share/share.cmxa)
+.SCANNER: scan-ocaml-%: ../p4/pa_monad.cmo
+
 OCAMLINCLUDES[] += 
   ../p4
   ../share

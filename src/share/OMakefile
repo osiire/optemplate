@@ -13,7 +13,7 @@ OCAMLFLAGS += -thread -g -annot -bin-annot
 #
 # settings for building 'share' library
 # 
-OCamlRequire(../p4/pa_monad.cmo)
+.SCANNER: scan-ocaml-%: ../p4/pa_monad.cmo
 OCAMLINCLUDES[] += ../p4
 
 FILES[] =
