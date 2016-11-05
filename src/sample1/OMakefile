@@ -15,25 +15,19 @@ CFLAGS += -I $(OCAML_STDLIB)
 # settings for building 'sample1'
 # 
 
-# depends p4 and share.
+# depends share.
 OCamlRequire(../share/share.cmxa)
-.SCANNER: scan-ocaml-%: ../p4/pa_monad.cmo
 
 OCAMLINCLUDES[] += 
-  ../p4
   ../share
 
 OCAML_LIBS[] =
   ../share/share
 
-PP = -pp "camlp4o ../p4/pa_monad.cmo"
-OCAMLDEPFLAGS += $(PP)
-OCAMLFLAGS += $(PP)
-
 PROGRAM = sample1
 
 FILES[] =
-  main 
+  main
 
 sample1 : $(OCamlProgram $(PROGRAM), $(FILES))
 

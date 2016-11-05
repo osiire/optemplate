@@ -1,2 +1,2 @@
 
-.SUBDIRS: p4 share sample1 
+.SUBDIRS: share sample1 

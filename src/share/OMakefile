@@ -10,15 +10,6 @@ OCAMLFLAGS += -thread -g -annot -bin-annot
 
 .PHONY: share
 
-#
-# settings for building 'share' library
-# 
-.SCANNER: scan-ocaml-%: ../p4/pa_monad.cmo
-OCAMLINCLUDES[] += ../p4
-PP = -pp "camlp4o ../p4/pa_monad.cmo"
-OCAMLDEPFLAGS += $(PP)
-OCAMLFLAGS += $(PP)
-
 FILES[] =
   common
 
